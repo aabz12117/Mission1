@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DARK CODE — MISSION BRIEFING</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Cairo"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            primary: '#3B82F6',
+            alert: '#EF4444',
+            success: '#22C55E',
+            dim: '#9CA3AF',
+            deep: '#020617',
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #000;
+      color: #e5e5e5;
+      font-family: 'Cairo', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    .carbon-bg {
+      background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+      position: fixed; inset: 0;
+      opacity: 0.07;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .crt-scanline {
+      position: fixed; left: 0; top: 0; width: 100%; height: 100vh;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.22) 50%, rgba(0,0,0,0.22));
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.13;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+    /* Glitch */
+    @keyframes glitch {
+      0%,100% { clip-path:none; transform:none; }
+      2% { clip-path:inset(10% 0 80% 0); transform:translateX(-4px); }
+      4% { clip-path:inset(60% 0 20% 0); transform:translateX(4px); }
+      6% { clip-path:none; transform:none; }
+    }
+    @keyframes glitch2 {
+      0%,100% { clip-path:none; transform:none; opacity:0; }
+      2% { clip-path:inset(30% 0 50% 0); transform:translateX(6px); opacity:0.7; }
+      4% { clip-path:inset(70% 0 10% 0); transform:translateX(-6px); opacity:0.7; }
+      6% { clip-path:none; transform:none; opacity:0; }
+    }
+    .logo-glitch { animation: glitch 6s infinite; }
+    .logo-glitch-2 {
+      position:absolute; top:0; left:0;
+      color:#ef4444;
+      animation: glitch2 6s infinite;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    /* Pulse dot */
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; box-shadow:0 0 5px #22c55e; }
+      50% { opacity:0.4; box-shadow:0 0 12px #22c55e; }
+    }
+    .pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+
+    /* Fade up */
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(20px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    .fade-up   { animation: fadeInUp 0.7s ease 0s   forwards; opacity:0; }
+    .fade-up-1 { animation: fadeInUp 0.7s ease 0.3s forwards; opacity:0; }
+    .fade-up-2 { animation: fadeInUp 0.7s ease 0.6s forwards; opacity:0; }
+    .fade-up-3 { animation: fadeInUp 0.7s ease 0.9s forwards; opacity:0; }
+    .fade-up-4 { animation: fadeInUp 0.7s ease 1.2s forwards; opacity:0; }
+    .fade-up-5 { animation: fadeInUp 0.7s ease 1.5s forwards; opacity:0; }
+
+    /* Mission reveal */
+    @keyframes missionReveal {
+      from { opacity:0; transform:scale(0.97); filter:blur(4px); }
+      to   { opacity:1; transform:scale(1);    filter:blur(0); }
+    }
+    .mission-reveal { animation: missionReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    /* Coord blink */
+    @keyframes coordBlink {
+      0%,100% { opacity:1; }
+      50% { opacity:0.6; }
+    }
+    .coord-blink { animation: coordBlink 2s ease-in-out infinite; }
+
+    /* Ping ring */
+    @keyframes ping-ring {
+      0%   { transform:scale(1); opacity:0.8; }
+      100% { transform:scale(2.5); opacity:0; }
+    }
+    .ping-ring       { animation: ping-ring 1.8s ease-out infinite; }
+    .ping-ring-delay { animation: ping-ring 1.8s ease-out 0.6s infinite; }
+
+    /* Shake */
+    @keyframes shake {
+      0%,100% { transform:translateX(0); }
+      20% { transform:translateX(-8px); }
+      40% { transform:translateX(8px); }
+      60% { transform:translateX(-5px); }
+      80% { transform:translateX(5px); }
+    }
+    .shake { animation: shake 0.5s ease; }
+
+    /* Mission lines */
+    @keyframes mline {
+      from { opacity:0; transform:translateX(10px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+    .mission-line { opacity:0; animation: mline 0.4s ease forwards; }
+
+    /* Input focus */
+    .code-input { transition: border-color 0.2s, box-shadow 0.2s; }
+    .code-input:focus {
+      outline: none;
+      border-color: #3B82F6 !important;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15), 0 0 20px rgba(59,130,246,0.25);
+    }
+
+    /* Button */
+    .btn-primary {
+      background: #3B82F6;
+      color: #000;
+      font-weight: 900;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: #60a5fa;
+      box-shadow: 0 0 25px rgba(59,130,246,0.6);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="carbon-bg"></div>
+<div class="crt-scanline"></div>
+
+<!-- Ambient glow top -->
+<div style="position:fixed;top:-120px;left:50%;transform:translateX(-50%);width:700px;height:240px;background:radial-gradient(ellipse,rgba(59,130,246,0.1) 0%,transparent 70%);pointer-events:none;z-index:1;"></div>
+
+<!-- ═══════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════ -->
+<div style="position:relative;z-index:10;" class="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+
+  <!-- ── LOGO ── -->
+  <div class="fade-up flex flex-col items-center gap-3 mb-10">
+    <!-- Terminal Icon -->
+    <div style="width:54px;height:54px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(59,130,246,0.3);">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 17 10 11 4 5"></polyline>
+        <line x1="12" y1="19" x2="20" y2="19"></line>
+      </svg>
+    </div>
+    <!-- Logo text -->
+    <div style="position:relative;display:inline-block;">
+      <h1 class="logo-glitch font-black tracking-tighter leading-none text-4xl" dir="ltr" style="font-family:'Cairo',sans-serif;">
+        <span style="color:#fff;">DARK</span><span style="color:#3B82F6;text-shadow:0 0 18px rgba(59,130,246,0.7);">CODE</span>
+      </h1>
+      <h1 class="logo-glitch-2 font-black tracking-tighter leading-none text-4xl" aria-hidden="true" dir="ltr" style="font-family:'Cairo',sans-serif;">
+        <span style="color:#fff;">DARK</span><span style="color:#3B82F6;">CODE</span>
+      </h1>
+    </div>
+    <!-- Status -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="pulse-dot" style="width:8px;height:8px;background:#22C55E;border-radius:50%;display:inline-block;"></span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9CA3AF;letter-spacing:0.22em;text-transform:uppercase;">Intelligence System · Active</span>
+    </div>
+  </div>
+
+  <!-- ── MAIN PANEL ── -->
+  <div class="fade-up-1 w-full" style="max-width:640px;">
+    <div style="background:#050505;border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;box-shadow:0 0 30px rgba(59,130,246,0.15);">
+
+      <!-- Panel header bar -->
+      <div style="background:#020617;border-bottom:1px solid rgba(255,255,255,0.07);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:7px;">
+          <span style="width:10px;height:10px;background:#EF4444;border-radius:50%;display:inline-block;box-shadow:0 0 6px #ef4444;"></span>
+          <span style="width:10px;height:10px;background:#f59e0b;border-radius:50%;display:inline-block;"></span>
+          <span style="width:10px;height:10px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 6px #22c55e;"></span>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9CA3AF;letter-spacing:0.14em;">MISSION_BRIEF_001.enc</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#3B82F6;">⬤ LIVE</span>
+      </div>
+
+      <!-- Panel body -->
+      <div style="padding:32px 28px;">
+
+        <!-- ── Welcome Message ── -->
+        <div class="fade-up-2" style="margin-bottom:28px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#3B82F6;letter-spacing:0.18em;display:block;margin-bottom:10px;">// INCOMING TRANSMISSION</span>
+          <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(59,130,246,0.5),transparent);"></div>
+            <p style="font-size:17px;font-weight:700;line-height:2;color:#e5e5e5;text-align:right;">
+              مرحبًا أيها العميل الجديد،<br>
+              <span style="color:#3B82F6;text-shadow:0 0 12px rgba(59,130,246,0.6);">مهمتك الأولى تبدأ الآن.</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── Coordinates ── -->
+        <div class="fade-up-2" style="margin-bottom:28px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9CA3AF;letter-spacing:0.18em;display:block;margin-bottom:10px;">// COORDINATES · ENCRYPTED</span>
+          <div style="background:#000;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+            <!-- Radar -->
+            <div style="position:relative;width:42px;height:42px;flex-shrink:0;">
+              <div class="ping-ring" style="position:absolute;inset:0;border:1.5px solid #22C55E;border-radius:50%;"></div>
+              <div class="ping-ring-delay" style="position:absolute;inset:0;border:1.5px solid rgba(34,197,94,0.4);border-radius:50%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;background:#22C55E;border-radius:50%;box-shadow:0 0 8px #22c55e;"></div>
+            </div>
+            <div style="flex:1;text-align:right;">
+              <p class="coord-blink" style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#22C55E;letter-spacing:0.04em;text-shadow:0 0 14px rgba(34,197,94,0.6);" dir="ltr">
+                24.2262785, 47.2184366
+              </p>
+              <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9CA3AF;margin-top:4px;">TARGET LOCATION · CLASSIFIED</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Pager Notice ── -->
+        <div class="fade-up-3" style="margin-bottom:28px;">
+          <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 0 16px rgba(239,68,68,0.12);">
+            <div style="flex-shrink:0;width:40px;height:40px;background:rgba(239,68,68,0.1);border-radius:10px;border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="14" rx="2"/>
+                <line x1="8" y1="20" x2="16" y2="20"/>
+                <line x1="12" y1="14" x2="12" y2="20"/>
+                <line x1="7" y1="9" x2="9" y2="9"/>
+                <line x1="11" y1="9" x2="17" y2="9"/>
+                <line x1="7" y1="12" x2="9" y2="12"/>
+                <line x1="11" y1="12" x2="13" y2="12"/>
+              </svg>
+            </div>
+            <div style="text-align:right;flex:1;">
+              <p style="font-weight:700;font-size:14px;color:#fca5a5;margin-bottom:5px;">تنبيه: بيجر مشفّر</p>
+              <p style="font-size:14px;color:#9CA3AF;line-height:1.8;">
+                في تمام الساعة
+                <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#EF4444;"> 9:30 مساءً </span>
+                سيصلك رمز سري على البيجر.<br>أدخله أدناه للوصول إلى تفاصيل المهمة.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-top:1px solid rgba(255,255,255,0.06);margin-bottom:24px;"></div>
+
+        <!-- ── Code Input ── -->
+        <div class="fade-up-4" id="inputSection">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9CA3AF;letter-spacing:0.18em;display:block;margin-bottom:12px;">// ENTER ACCESS CODE</span>
+          <div style="display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;">
+            <input
+              id="codeInput"
+              type="text"
+              placeholder="أدخل الرمز هنا..."
+              class="code-input"
+              dir="ltr"
+              style="flex:1;min-width:0;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:13px 16px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:0.1em;"
+            />
+            <button
+              onclick="submitCode()"
+              class="btn-primary"
+              style="padding:13px 22px;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:15px;white-space:nowrap;"
+            >
+              إرسال الرمز
+            </button>
+          </div>
+
+          <!-- Error -->
+          <div id="errorMsg" style="display:none;margin-top:12px;">
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 0 14px rgba(239,68,68,0.2);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span style="color:#fca5a5;font-size:14px;font-weight:700;">الرمز غير صحيح، حاول مجددًا.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Mission Section (hidden) ── -->
+        <div id="missionSection" style="display:none;">
+          <div class="mission-reveal">
+            <!-- Success badge -->
+            <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:22px;box-shadow:0 0 18px rgba(34,197,94,0.15);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span style="font-weight:700;font-size:14px;color:#86efac;">تم التحقق من الهوية — الوصول ممنوح</span>
+            </div>
+
+            <!-- Title divider -->
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <div style="flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(59,130,246,0.4));"></div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#3B82F6;letter-spacing:0.22em;white-space:nowrap;">MISSION BRIEF · TOP SECRET</span>
+              <div style="flex:1;height:1px;background:linear-gradient(to left,transparent,rgba(59,130,246,0.4));"></div>
+            </div>
+
+            <!-- Mission text card -->
+            <div style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:14px;padding:24px;position:relative;overflow:hidden;">
+              <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(59,130,246,0.5),transparent);"></div>
+
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#3B82F6;letter-spacing:0.15em;">DECRYPTED · تفاصيل المهمة</span>
+              </div>
+
+              <div id="missionText" style="font-size:15px;font-weight:600;line-height:2;color:#e5e5e5;text-align:right;"></div>
+
+              <!-- Keywords box -->
+              <div style="margin-top:20px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.18);border-radius:10px;padding:16px 18px;">
+                <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#EF4444;letter-spacing:0.15em;margin-bottom:12px;">// KEYWORDS · المفاتيح الثلاثة</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                  <span style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:7px 18px;color:#93c5fd;font-weight:800;font-size:15px;box-shadow:0 0 12px rgba(59,130,246,0.2);">ديو</span>
+                  <span style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:7px 18px;color:#86efac;font-weight:800;font-size:15px;box-shadow:0 0 12px rgba(34,197,94,0.2);">منطقة أطفال</span>
+                  <span style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:7px 18px;color:#fca5a5;font-weight:800;font-size:15px;box-shadow:0 0 12px rgba(239,68,68,0.2);">نار</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /body -->
+
+      <!-- Panel footer -->
+      <div style="background:#020617;border-top:1px solid rgba(255,255,255,0.05);padding:10px 24px;display:flex;justify-content:space-between;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#374151;">ENCRYPTION: AES-256</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#374151;">CLEARANCE: OMEGA-7</span>
+      </div>
+
+    </div><!-- /panel -->
+  </div>
+
+  <!-- Stamp -->
+  <div class="fade-up-5" style="margin-top:28px;display:flex;align-items:center;gap:12px;opacity:0.25;">
+    <div style="height:1px;width:60px;background:rgba(255,255,255,0.2);"></div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9CA3AF;letter-spacing:0.22em;text-transform:uppercase;">Dark Code Intelligence · Classified</span>
+    <div style="height:1px;width:60px;background:rgba(255,255,255,0.2);"></div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const CORRECT = 'welcome';
+
+  const missionLines = [
+    'عميلنا العزيز، لقد وصلت هذه الرسالة إليك لأنك الشخص الوحيد الذي يمكنه إتمام هذه المهمة.',
+    'مهمتك: التوجه إلى الإحداثيات المحددة بحذر تام، وتحديد الهدف بدقة.',
+    null,
+    'تذكر جيداً التلميحات الثلاثة التي ستدلك على مكان الهدف:',
+    '— <span style="color:#93c5fd;font-weight:900;">ديو</span>: ابحث عما يوحي بهذا الاسم في المنطقة المحيطة.',
+    '— <span style="color:#86efac;font-weight:900;">منطقة أطفال</span>: الهدف يقع على مقربة من مكان يرتاده الصغار.',
+    '— <span style="color:#fca5a5;font-weight:900;">نار</span>: حين تجد النار، ستعرف أنك وصلت.',
+    null,
+    'لا تتصل بنا — نحن من سنتصل بك.',
+  ];
+
+  function submitCode() {
+    const input = document.getElementById('codeInput');
+    const val   = input.value.trim().toLowerCase();
+    const errEl = document.getElementById('errorMsg');
+    const inputSec  = document.getElementById('inputSection');
+    const missionSec = document.getElementById('missionSection');
+
+    if (val === CORRECT) {
+      errEl.style.display = 'none';
+      inputSec.style.display = 'none';
+      missionSec.style.display = 'block';
+      buildMissionText();
+    } else {
+      errEl.style.display = 'block';
+      input.classList.remove('shake');
+      void input.offsetWidth;
+      input.classList.add('shake');
+      input.value = '';
+      setTimeout(() => input.classList.remove('shake'), 600);
+    }
+  }
+
+  function buildMissionText() {
+    const container = document.getElementById('missionText');
+    container.innerHTML = '';
+    let delay = 0;
+    missionLines.forEach((line) => {
+      if (line === null) {
+        const sp = document.createElement('div');
+        sp.style.height = '10px';
+        container.appendChild(sp);
+        return;
+      }
+      const p = document.createElement('p');
+      p.innerHTML = line;
+      p.className = 'mission-line';
+      p.style.animationDelay = delay + 's';
+      container.appendChild(p);
+      delay += 0.1;
+    });
+  }
+
+  document.getElementById('codeInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitCode();
+  });
+</script>
+
+</body>
+</html>
